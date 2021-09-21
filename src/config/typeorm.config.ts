@@ -7,6 +7,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   username: 'postgres',
   password: '101120',
   database: 'dekore_dev',
-  entities: [__dirname + '/../**/*.entity.ts'],
   synchronize: true,
+  entities: [__dirname + '/../**/*.entity.{js,ts}'],
+  autoLoadEntities: true,
 };
