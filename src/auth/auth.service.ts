@@ -34,7 +34,6 @@ export class AuthService {
   // create(createAuthDto: CreateAuthDto) {
   //   return 'This action adds a new auth';
   // }
-
   // findAll() {
   //   return `This action returns all auth`;
   // }
