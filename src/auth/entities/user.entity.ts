@@ -11,6 +11,7 @@ import { Task } from './../../tasks/task.entity';
 
 @Entity()
 @Unique(['username'])
+@Unique(['email'])
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -23,6 +24,15 @@ export class User extends BaseEntity {
 
   @Column()
   salt: string;
+
+  @Column()
+  email: string;
+
+  @Column()
+  isActive: boolean;
+
+  @Column()
+  isAdmin: boolean;
 
   @OneToMany((type) => Task, (task) => task.user, { eager: true })
   tasks: Task[];

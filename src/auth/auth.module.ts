@@ -1,3 +1,5 @@
+import { ForgetPasswordCodeRepository } from './repository/forgetPasswordCode.repository';
+import { MailService } from './../mail/mail.service';
 import { JwtStrategy } from './jwt.strategy';
 import { UserRepository } from './repository/user.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,7 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserRepository]),
+    TypeOrmModule.forFeature([UserRepository, ForgetPasswordCodeRepository]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: 'top5secret',
@@ -18,7 +20,7 @@ import { PassportModule } from '@nestjs/passport';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, MailService],
   exports: [JwtStrategy, PassportModule],
 })
 export class AuthModule {}

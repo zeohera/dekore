@@ -1,37 +1,45 @@
+import { ResetPasswordDto } from './dto/resetpassword.dto';
+import { ActiveAccountDto } from './dto/active-account.dto';
+import { MailService } from './../mail/mail.service';
 import { User } from './entities/user.entity';
 import { GetUser } from './get-user.decorator';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import { Request } from 'express';
+import { generator } from 'random-number';
 import {
   Controller,
   Get,
   Post,
   Body,
   Patch,
-  Param,
-  Delete,
   ValidationPipe,
   UseGuards,
   Req,
+  Query,
+  Param,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly mailService: MailService,
+  ) {}
 
   @Post('/signup')
   signUp(
-    @Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto,
+    @Body(ValidationPipe) createAuthDto: CreateAuthDto,
+    @Req() req: Request,
   ): Promise<void> {
-    console.log(authCredentialsDto);
-    return this.authService.signUp(authCredentialsDto);
+    return this.authService.signUp(createAuthDto, req);
   }
 
   @Post('/signin')
-  signIn(@Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto) {
+  async signIn(@Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto) {
     return this.authService.signIn(authCredentialsDto);
   }
 
@@ -41,6 +49,25 @@ export class AuthController {
     console.log(user);
   }
 
+  @Get('/active')
+  async activeAccount(@Query() activeInfo: ActiveAccountDto) {
+    return this.authService.activeAccount(activeInfo);
+  }
+
+  @Get('/requestResetPassword')
+  async requestResetPassword(@Body('email') email: string) {
+    const secretCode = generator({ min: 100000, max: 999999, integer: true })();
+    await this.authService.saveSecretCode(email, secretCode);
+    console.log('done');
+    await this.mailService.sendSecretCode(email, secretCode);
+  }
+
+  @Patch('/resetPassword')
+  async resetPassword(@Body(ValidationPipe) body: ResetPasswordDto) {
+    const { password, secretCode, email } = body;
+    await this.authService.resetPassword(email, secretCode, password);
+    return { message: 'reset password successfully' };
+  }
   // @Post()
   // create(@Body() createAuthDto: CreateAuthDto) {
   //   return this.authService.create(createAuthDto);
