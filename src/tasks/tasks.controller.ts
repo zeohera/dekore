@@ -1,3 +1,4 @@
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { User } from './../auth/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { TaskStatusValidationPipe } from './pipes/task-status-validation.pipe';
@@ -22,12 +23,12 @@ import {
 } from '@nestjs/common';
 import { Task } from './task.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
-
+@ApiTags('Task')
+@ApiBearerAuth()
 @Controller('tasks')
 @UseGuards(AuthGuard())
 export class TasksController {
   constructor(private tasksService: TasksService) {}
-
   @Get()
   getAllTask(
     @Query(ValidationPipe) filterDto: GetTaskFilterDto,

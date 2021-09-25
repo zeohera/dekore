@@ -22,7 +22,8 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(

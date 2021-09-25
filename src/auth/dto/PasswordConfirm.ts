@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsString,
   MaxLength,
@@ -31,11 +32,13 @@ export class MatchConstraint implements ValidatorConstraintInterface {
 }
 
 export class PasswordConfirm {
+  @ApiProperty()
   @IsString()
   @MinLength(8)
   @MaxLength(20)
   password: string;
 
+  @ApiProperty()
   @IsString()
   @MinLength(8)
   @MaxLength(20)
