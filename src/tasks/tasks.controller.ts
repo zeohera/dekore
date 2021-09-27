@@ -1,10 +1,10 @@
+import { TokenGuard } from './../auth/validToken.guard';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { User } from './../auth/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { TaskStatusValidationPipe } from './pipes/task-status-validation.pipe';
 import { GetTaskFilterDto } from './dto/get-tasks-filter.dto';
 import { CreateTaskDto } from './dto/create-task.dto';
-// import { Task, TaskStatus } from './task.model';
 import { TaskStatus } from './task-status.enum';
 import { TasksService } from './tasks.service';
 import {
@@ -18,7 +18,6 @@ import {
   Post,
   Query,
   UseGuards,
-  UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { Task } from './task.entity';
@@ -26,10 +25,12 @@ import { GetUser } from 'src/auth/get-user.decorator';
 @ApiTags('Task')
 @ApiBearerAuth()
 @Controller('tasks')
+@UseGuards(TokenGuard)
 @UseGuards(AuthGuard())
 export class TasksController {
   constructor(private tasksService: TasksService) {}
   @Get()
+  // @UseGuards(TokenGuard)
   getAllTask(
     @Query(ValidationPipe) filterDto: GetTaskFilterDto,
     @GetUser() user: User,
@@ -46,7 +47,7 @@ export class TasksController {
   }
 
   @Post()
-  @UsePipes(ValidationPipe)
+  // @UsePipes(ValidationPipe)
   createTask(
     @Body() createTaskDto: CreateTaskDto,
     @GetUser() user: User,

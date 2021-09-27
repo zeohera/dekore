@@ -1,4 +1,3 @@
-import { UserRepository } from './user.repository';
 import { User } from 'src/auth/entities/user.entity';
 import { EntityRepository, Repository } from 'typeorm';
 import { ForgetPasswordCode } from './../entities/forgetPasswordCode.entity';

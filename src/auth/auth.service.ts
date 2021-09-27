@@ -1,3 +1,6 @@
+import { LogOutDto } from './dto/logout.dto';
+import { TokenRepository } from './repository/token.repository';
+import { loginResponseDto } from './dto/loginResponse.dto';
 import { ForgetPasswordCodeRepository } from './repository/forgetPasswordCode.repository';
 import { ActiveAccountDto } from './dto/active-account.dto';
 import { MailService } from './../mail/mail.service';
@@ -7,21 +10,22 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserRepository } from './repository/user.repository';
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { format } from 'url';
+import { MoreThan } from 'typeorm';
+import * as moment from 'moment';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(UserRepository)
     private userRepository: UserRepository,
+    private tokenRepository: TokenRepository,
     private forgetPasswordCodeRepository: ForgetPasswordCodeRepository,
     private JwtService: JwtService,
     private mailService: MailService,
   ) {}
   async signUp(createAuthDto: CreateAuthDto, req): Promise<void> {
-    console.log(req.headers.host);
     const user = await this.userRepository.signUp(createAuthDto);
     const activeLink = format({
       protocol: req.protocol,
@@ -33,8 +37,8 @@ export class AuthService {
   }
   async signIn(
     authCredentialsDto: AuthCredentialsDto,
-  ): Promise<{ accessToken: string }> {
-    const { username, isActive } =
+  ): Promise<loginResponseDto> {
+    const { username, isActive, id } =
       await this.userRepository.validateUserPassword(authCredentialsDto);
     if (!username) {
       throw new UnauthorizedException('invalid credenticals');
@@ -43,9 +47,31 @@ export class AuthService {
       throw new UnauthorizedException('you need to active this account');
     }
     const payload: JwtPayload = { username };
-    const accessToken = await this.JwtService.sign(payload);
-    return { accessToken };
+    const accessToken = await this.JwtService.sign({
+      ...payload,
+      type: 'access',
+    });
+    const refreshToken = await this.JwtService.sign({
+      ...payload,
+      type: 'refresh',
+    });
+    console.log(this.tokenRepository);
+    await this.tokenRepository.save({
+      accessToken,
+      refreshToken,
+      userId: id,
+    });
+    const result: loginResponseDto = {
+      accessToken,
+      refreshToken,
+    };
+    return result;
   }
+
+  async signOut(token: LogOutDto) {
+    await this.tokenRepository.signOut(token);
+  }
+
   async activeAccount(activeInfo: ActiveAccountDto) {
     const active = true;
     const { userId, email } = activeInfo;
@@ -58,14 +84,24 @@ export class AuthService {
   }
 
   async resetPassword(email: string, secretCode: number, password: string) {
-    const check = await this.forgetPasswordCodeRepository.count({
+    const minutesAgo = moment().subtract(5, 'minutes');
+    const check = await this.forgetPasswordCodeRepository.findOne({
       email: email,
       code: secretCode,
+      updated_at: MoreThan(minutesAgo),
     });
-    if (check === 1) {
+    if (check.id) {
+      this.tokenRepository.update({ userId: check.id }, { state: false });
       return await this.userRepository.resetPassword(email, password);
-    }
+    } else
+      throw new UnauthorizedException(
+        'your secret is out of date or may be replaced',
+      );
   }
+  async checkActive(token: string) {
+    return this.tokenRepository.checkActive(token);
+  }
+
   // create(createAuthDto: CreateAuthDto) {
   //   return 'This action adds a new auth';
   // }
