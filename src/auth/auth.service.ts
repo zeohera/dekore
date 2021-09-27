@@ -47,14 +47,20 @@ export class AuthService {
       throw new UnauthorizedException('you need to active this account');
     }
     const payload: JwtPayload = { username };
-    const accessToken = await this.JwtService.sign({
-      ...payload,
-      type: 'access',
-    });
-    const refreshToken = await this.JwtService.sign({
-      ...payload,
-      type: 'refresh',
-    });
+    const accessToken = await this.JwtService.sign(
+      {
+        ...payload,
+        type: 'access',
+      },
+      { expiresIn: '3d' },
+    );
+    const refreshToken = await this.JwtService.sign(
+      {
+        ...payload,
+        type: 'refresh',
+      },
+      { expiresIn: '10d' },
+    );
     console.log(this.tokenRepository);
     await this.tokenRepository.save({
       accessToken,
