@@ -7,6 +7,7 @@ import {
   ConflictException,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 
 @EntityRepository(User)
@@ -40,7 +41,7 @@ export class UserRepository extends Repository<User> {
     if (user && (await user.validatePassword(password))) {
       const { username, isActive, id } = user;
       return { username, id, isActive };
-    } else return null;
+    } else throw new UnauthorizedException('wrong username or password');
   }
 
   async changeState(userId: number, state: boolean, email: string) {
