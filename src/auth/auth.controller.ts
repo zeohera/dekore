@@ -8,7 +8,6 @@ import { User } from './entities/user.entity';
 import { GetUser } from './get-user.decorator';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { Request, Response } from 'express';
 import { generator } from 'random-number';
 import {
@@ -26,8 +25,9 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { loginResponseDto } from './dto/loginResponse.dto';
+import { UpdateResult } from 'typeorm';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
@@ -96,6 +96,13 @@ export class AuthController {
     return { message: 'reset password successfully' };
   }
 
+  @Get('/gettoken')
+  @ApiBearerAuth()
+  async getToken(@GetBearerToken() token): Promise<{ accessToken: string }> {
+    console.log('token', token);
+    const accessToken = await this.authService.getToken(token);
+    return { accessToken: accessToken };
+  }
   // @Post()
   // create(@Body() createAuthDto: CreateAuthDto) {
   //   return this.authService.create(createAuthDto);

@@ -50,16 +50,20 @@ export class AuthService {
     const accessToken = await this.JwtService.sign(
       {
         ...payload,
-        type: 'access',
       },
-      { expiresIn: '3d' },
+      {
+        expiresIn: process.env.ACCESS_TOKEN_EXP,
+        secret: process.env.ACCESS_TOKEN,
+      },
     );
     const refreshToken = await this.JwtService.sign(
       {
         ...payload,
-        type: 'refresh',
       },
-      { expiresIn: '10d' },
+      {
+        expiresIn: process.env.REFRESH_TOKEN_EXP,
+        secret: process.env.REFRESH_TOKEN,
+      },
     );
     console.log(this.tokenRepository);
     await this.tokenRepository.save({
@@ -107,7 +111,10 @@ export class AuthService {
   async checkActive(token: string) {
     return this.tokenRepository.checkActive(token);
   }
-
+  async getToken(token: string): Promise<string> {
+    const accessToken = await this.tokenRepository.getToken(token);
+    return accessToken;
+  }
   // create(createAuthDto: CreateAuthDto) {
   //   return 'This action adds a new auth';
   // }
