@@ -77,7 +77,7 @@ export class AuthController {
   ) {
     await this.authService.activeAccount(activeInfo);
     res
-      .status(HttpStatus.NO_CONTENT)
+      .status(HttpStatus.OK)
       .json({ message: 'account activated successfully' });
   }
 
