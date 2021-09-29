@@ -9,7 +9,7 @@ import { GetUser } from './get-user.decorator';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { generator } from 'random-number';
 import {
   Controller,
@@ -20,7 +20,9 @@ import {
   ValidationPipe,
   UseGuards,
   Req,
+  Res,
   Query,
+  HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -66,8 +68,17 @@ export class AuthController {
   }
 
   @Get('/active')
-  async activeAccount(@Query() activeInfo: ActiveAccountDto) {
-    return this.authService.activeAccount(activeInfo);
+  @ApiCreatedResponse({
+    description: 'active account',
+  })
+  async activeAccount(
+    @Query() activeInfo: ActiveAccountDto,
+    @Res() res: Response,
+  ) {
+    await this.authService.activeAccount(activeInfo);
+    res
+      .status(HttpStatus.NO_CONTENT)
+      .json({ message: 'account activated successfully' });
   }
 
   @Post('/requestResetPassword')
