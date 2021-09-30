@@ -14,7 +14,6 @@ export class TokenGuard implements CanActivate {
   }
   async validateRequest(execContext): Promise<boolean> {
     try {
-      console.log('jello');
       const token = execContext.headers.authorization.split(' ')[1];
       return await this.authService.checkActive(token);
     } catch (error) {
