@@ -65,7 +65,6 @@ export class AuthService {
         secret: process.env.REFRESH_TOKEN,
       },
     );
-    console.log(this.tokenRepository);
     await this.tokenRepository.save({
       accessToken,
       refreshToken,
@@ -89,7 +88,6 @@ export class AuthService {
   }
 
   async saveSecretCode(email: string, secretCode: number) {
-    console.log(email, secretCode);
     this.forgetPasswordCodeRepository.saveSecretCode(email, secretCode);
   }
 

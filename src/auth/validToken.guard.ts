@@ -16,8 +16,6 @@ export class TokenGuard implements CanActivate {
     try {
       const token = execContext.headers.authorization.split(' ')[1];
       return await this.authService.checkActive(token);
-    } catch (error) {
-      console.log('wtf');
-    }
+    } catch (error) {}
   }
 }

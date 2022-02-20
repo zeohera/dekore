@@ -35,7 +35,6 @@ export class TasksService {
 
   async deleteTask(id: number, user: User) {
     const result = await this.taskRepository.delete({ id, userId: user.id });
-    console.log(result);
   }
   async updateTaskStatus(
     id: number,

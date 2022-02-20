@@ -8,7 +8,7 @@ export class ForgetPasswordCodeRepository extends Repository<ForgetPasswordCode>
     const queryUser = User.createQueryBuilder('user')
       .select('user.email')
       .where('user.email = :email ', { email: reqEmail });
-    const insertSecret = await this.createQueryBuilder('secret')
+    await this.createQueryBuilder('secret')
       .insert()
       .values({
         code: secretCode,
@@ -17,6 +17,5 @@ export class ForgetPasswordCodeRepository extends Repository<ForgetPasswordCode>
       .onConflict(`("email") DO UPDATE SET "code" = :code`)
       .setParameter('code', secretCode)
       .execute();
-    console.log(insertSecret);
   }
 }

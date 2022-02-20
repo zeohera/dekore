@@ -26,19 +26,16 @@ export class TokenRepository extends Repository<Token> {
     } else return true;
   }
   async signOut(tokenInfo: LogOutDto) {
-    console.log(tokenInfo);
     const { token } = tokenInfo;
     const queryResult = Token.createQueryBuilder('token')
       .update(Token)
       .set({ state: false })
       .where('accessToken = :token ', { token })
       .execute();
-    console.log(queryResult);
   }
   async getToken(refreshToken: string) {
     try {
       const queryResult = await Token.findOne({ refreshToken, state: true });
-      console.log('queryResult', queryResult);
       if (!queryResult) {
         throw new Error('refreshToken not found');
       }
@@ -77,9 +74,7 @@ export class TokenRepository extends Repository<Token> {
             return updatedToken.accessToken;
           }
         }
-      } catch (error) {
-        console.log('tesst', error);
-      }
+      } catch (error) {}
     } catch (error) {
       throw new UnauthorizedException('token wrong');
     }

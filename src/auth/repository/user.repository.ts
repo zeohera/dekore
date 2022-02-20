@@ -26,7 +26,6 @@ export class UserRepository extends Repository<User> {
       await user.save();
       return user;
     } catch (error) {
-      console.log(error.code);
       if (error.code == 23505) {
         throw new ConflictException('username or email already exists');
       } else throw new InternalServerErrorException();
@@ -46,7 +45,6 @@ export class UserRepository extends Repository<User> {
 
   async changeState(userId: number, state: boolean, email: string) {
     const user = await this.update({ id: userId, email }, { isActive: state });
-    console.log('user', user.affected);
     if (user.affected === 0) {
       throw new NotFoundException('user not found');
     }

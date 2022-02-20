@@ -1,11 +1,8 @@
 import { GetBearerToken } from './get-token.decorator';
-import { TokenGuard } from './validToken.guard';
 import { EmailDto } from './dto/email.dto';
 import { ResetPasswordDto } from './dto/resetpassword.dto';
 import { ActiveAccountDto } from './dto/active-account.dto';
 import { MailService } from './../mail/mail.service';
-import { User } from './entities/user.entity';
-import { GetUser } from './get-user.decorator';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { Request, Response } from 'express';
@@ -17,17 +14,14 @@ import {
   Body,
   Patch,
   ValidationPipe,
-  UseGuards,
   Req,
   Res,
   Query,
   HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { loginResponseDto } from './dto/loginResponse.dto';
-import { UpdateResult } from 'typeorm';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
@@ -60,13 +54,6 @@ export class AuthController {
     return this.authService.signOut({ token });
   }
 
-  @Post('/test')
-  @UseGuards(AuthGuard())
-  @UseGuards(TokenGuard)
-  test(@GetUser() user: User, @GetBearerToken() token) {
-    console.log('token');
-  }
-
   @Get('/active')
   @ApiCreatedResponse({
     description: 'active account',
@@ -96,10 +83,9 @@ export class AuthController {
     return { message: 'reset password successfully' };
   }
 
-  @Get('/gettoken')
+  @Get('/getToken')
   @ApiBearerAuth()
   async getToken(@GetBearerToken() token): Promise<{ accessToken: string }> {
-    console.log('token', token);
     const accessToken = await this.authService.getToken(token);
     return { accessToken: accessToken };
   }
